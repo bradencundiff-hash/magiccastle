@@ -1,0 +1,22 @@
+[
+  { "id": "cat", "word": "cat", "hint": "A soft pet that says meow" },
+  { "id": "sun", "word": "sun", "hint": "Bright in the sky in daytime" },
+  { "id": "hat", "word": "hat", "hint": "You wear it on your head" },
+  { "id": "map", "word": "map", "hint": "Shows where places are" },
+  { "id": "pen", "word": "pen", "hint": "You write with it" },
+  { "id": "cup", "word": "cup", "hint": "You drink from it" },
+  { "id": "bed", "word": "bed", "hint": "You sleep here" },
+  { "id": "red", "word": "red", "hint": "A color like a stop sign" },
+  { "id": "bug", "word": "bug", "hint": "A tiny crawling creature" },
+  { "id": "run", "word": "run", "hint": "Move your legs very fast" },
+  { "id": "star", "word": "star", "hint": "Sparkles in the night sky" },
+  { "id": "moon", "word": "moon", "hint": "You see it at night" },
+  { "id": "tree", "word": "tree", "hint": "Tall plant with leaves" },
+  { "id": "book", "word": "book", "hint": "Pages to read" },
+  { "id": "hand", "word": "hand", "hint": "You wave with it" },
+  { "id": "fish", "word": "fish", "hint": "Swims in water" },
+  { "id": "duck", "word": "duck", "hint": "Says quack" },
+  { "id": "nest", "word": "nest", "hint": "Birds make this home" },
+  { "id": "wand", "word": "wand", "hint": "A magic stick in stories" },
+  { "id": "king", "word": "king", "hint": "Wears a crown in tales" }
+]
