@@ -100,8 +100,8 @@ function AppShell() {
     <div className="app-shell">
       <header className="app-header">
         <p className="app-tagline">
-          Desktop keyboard spelling for early readers. Words are mostly 3–4
-          letters.
+          Spelling for early readers: on-screen letter pool, drag-and-drop into
+          boxes, or type on the keyboard. Words are mostly 3–4 letters.
         </p>
       </header>
       <main className="app-main">

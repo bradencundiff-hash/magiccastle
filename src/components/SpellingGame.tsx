@@ -1,9 +1,11 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import wordsData from "../content/words.json";
 import { useSettings } from "../settings/SettingsContext";
 import type { RoundPhase, WordEntry } from "../types";
 
 const words = wordsData as WordEntry[];
+
+const DND_MIME = "application/x-magiccastle-tile+json";
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
@@ -14,9 +16,95 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
+type LetterTile = { id: string; char: string };
+
+type LayoutState = {
+  bankIds: string[];
+  slotTileIds: (string | null)[];
+};
+
+type LayoutAction =
+  | { type: "reset"; tileIds: string[]; slotCount: number }
+  | { type: "placeKeyboard"; char: string; charMap: Record<string, string> }
+  | { type: "backspace" }
+  | { type: "dropBankToSlot"; tileId: string; slotIndex: number }
+  | { type: "dropSlotToSlot"; fromIndex: number; toIndex: number }
+  | { type: "dropSlotToBank"; fromIndex: number };
+
+function layoutReducer(state: LayoutState, action: LayoutAction): LayoutState {
+  switch (action.type) {
+    case "reset":
+      return {
+        bankIds: shuffle([...action.tileIds]),
+        slotTileIds: Array.from({ length: action.slotCount }, () => null),
+      };
+    case "placeKeyboard": {
+      const empty = state.slotTileIds.findIndex((x) => x === null);
+      if (empty === -1) return state;
+      const bankIdx = state.bankIds.findIndex(
+        (id) => action.charMap[id] === action.char,
+      );
+      if (bankIdx === -1) return state;
+      const tileId = state.bankIds[bankIdx];
+      const bankIds = state.bankIds.filter((_, i) => i !== bankIdx);
+      const slotTileIds = [...state.slotTileIds];
+      slotTileIds[empty] = tileId;
+      return { bankIds, slotTileIds };
+    }
+    case "backspace": {
+      let last = -1;
+      for (let i = state.slotTileIds.length - 1; i >= 0; i--) {
+        if (state.slotTileIds[i] !== null) {
+          last = i;
+          break;
+        }
+      }
+      if (last === -1) return state;
+      const tileId = state.slotTileIds[last]!;
+      const slotTileIds = [...state.slotTileIds];
+      slotTileIds[last] = null;
+      return { bankIds: [...state.bankIds, tileId], slotTileIds };
+    }
+    case "dropBankToSlot": {
+      const { tileId, slotIndex } = action;
+      if (!state.bankIds.includes(tileId)) return state;
+      const bankIds = state.bankIds.filter((id) => id !== tileId);
+      const slotTileIds = [...state.slotTileIds];
+      const displaced = slotTileIds[slotIndex];
+      if (displaced) bankIds.push(displaced);
+      slotTileIds[slotIndex] = tileId;
+      return { bankIds, slotTileIds };
+    }
+    case "dropSlotToSlot": {
+      const { fromIndex, toIndex } = action;
+      if (fromIndex === toIndex) return state;
+      const moving = state.slotTileIds[fromIndex];
+      if (!moving) return state;
+      const slotTileIds = [...state.slotTileIds];
+      const atTarget = slotTileIds[toIndex];
+      slotTileIds[fromIndex] = atTarget;
+      slotTileIds[toIndex] = moving;
+      return { bankIds: state.bankIds, slotTileIds };
+    }
+    case "dropSlotToBank": {
+      const { fromIndex } = action;
+      const tileId = state.slotTileIds[fromIndex];
+      if (!tileId) return state;
+      const slotTileIds = [...state.slotTileIds];
+      slotTileIds[fromIndex] = null;
+      return { bankIds: [...state.bankIds, tileId], slotTileIds };
+    }
+    default:
+      return state;
+  }
+}
+
 function playChime(soundEnabled: boolean) {
   if (!soundEnabled) return;
-  const AC = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+  const AC =
+    window.AudioContext ||
+    (window as unknown as { webkitAudioContext?: typeof AudioContext })
+      .webkitAudioContext;
   if (!AC) return;
   const ctx = new AC();
   const osc = ctx.createOscillator();
@@ -40,15 +128,33 @@ function speakWord(text: string) {
   window.speechSynthesis.speak(u);
 }
 
+type DragPayload =
+  | { source: "bank"; tileId: string }
+  | { source: "slot"; tileId: string; fromSlot: number };
+
+function readDragPayload(e: React.DragEvent): DragPayload | null {
+  const raw = e.dataTransfer.getData(DND_MIME) || e.dataTransfer.getData("text/plain");
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as DragPayload;
+  } catch {
+    return null;
+  }
+}
+
 export function SpellingGame() {
   const { settings, effectiveReduceMotion } = useSettings();
   const [started, setStarted] = useState(false);
   const [order, setOrder] = useState<string[]>(() => shuffle(words.map((w) => w.id)));
   const [orderIndex, setOrderIndex] = useState(0);
-  const [typed, setTyped] = useState("");
+  const [layout, dispatchLayout] = useReducer(layoutReducer, {
+    bankIds: [],
+    slotTileIds: [],
+  });
   const [phase, setPhase] = useState<RoundPhase>("idle");
   const [stickers, setStickers] = useState<string[]>([]);
   const [wrongMask, setWrongMask] = useState<boolean[] | null>(null);
+  const [dropSlot, setDropSlot] = useState<number | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const announceRef = useRef<HTMLDivElement>(null);
   const chimeGate = useRef(false);
@@ -57,10 +163,47 @@ export function SpellingGame() {
   const target = current.word.toLowerCase();
   const len = target.length;
 
+  const letterTiles: LetterTile[] = useMemo(
+    () =>
+      target.split("").map((char, i) => ({
+        id: `${current.id}-${i}`,
+        char: char.toLowerCase(),
+      })),
+    [current.id, target],
+  );
+
+  const charMap = useMemo(
+    () => Object.fromEntries(letterTiles.map((t) => [t.id, t.char])),
+    [letterTiles],
+  );
+
+  const typedString = useMemo(
+    () =>
+      layout.slotTileIds
+        .map((id) => (id ? charMap[id] ?? "" : ""))
+        .join(""),
+    [layout.slotTileIds, charMap],
+  );
+
+  const allSlotsFilled =
+    len > 0 && layout.slotTileIds.length === len && layout.slotTileIds.every(Boolean);
+
   const transitionMs = settings.slowTransitions ? 520 : 160;
 
+  const resetLayout = useCallback(() => {
+    dispatchLayout({
+      type: "reset",
+      tileIds: letterTiles.map((t) => t.id),
+      slotCount: letterTiles.length,
+    });
+  }, [letterTiles]);
+
+  useEffect(() => {
+    if (!started) return;
+    resetLayout();
+  }, [started, current.id, resetLayout]);
+
   const goNextWord = useCallback(() => {
-    setTyped("");
     setWrongMask(null);
     setPhase("typing");
     setOrderIndex((i) => {
@@ -78,7 +221,6 @@ export function SpellingGame() {
     const wait = effectiveReduceMotion ? 900 : 1600;
     const t = window.setTimeout(() => {
       if (!settings.repeatWordsMode) {
-        setTyped("");
         setWrongMask(null);
         setPhase("typing");
         setOrderIndex((i) => {
@@ -91,12 +233,12 @@ export function SpellingGame() {
         });
       } else {
         setPhase("typing");
-        setTyped("");
         setWrongMask(null);
+        resetLayout();
       }
     }, wait);
     return () => window.clearTimeout(t);
-  }, [phase, effectiveReduceMotion, settings.repeatWordsMode]);
+  }, [phase, effectiveReduceMotion, settings.repeatWordsMode, resetLayout]);
 
   useEffect(() => {
     if (phase === "celebrate") {
@@ -117,11 +259,11 @@ export function SpellingGame() {
 
   useEffect(() => {
     if (phase === "celebrate") return;
-    if (typed.length !== len || len === 0) {
-      if (typed.length < len) setWrongMask(null);
+    if (!allSlotsFilled) {
+      setWrongMask(null);
       return;
     }
-    const t = typed.toLowerCase();
+    const t = typedString.toLowerCase();
     if (t === target) {
       setWrongMask(null);
       setPhase("celebrate");
@@ -136,10 +278,10 @@ export function SpellingGame() {
       const el = announceRef.current;
       if (el) {
         el.textContent =
-          "Not quite yet. You can use Backspace to change letters.";
+          "Not quite yet. You can drag letters to fix them, or use Backspace.";
       }
     }
-  }, [typed, len, target, current.id, current.word, phase]);
+  }, [typedString, allSlotsFilled, target, current.id, current.word, phase]);
 
   const onKeyDown = (e: React.KeyboardEvent) => {
     if (!started || phase === "celebrate") return;
@@ -147,30 +289,83 @@ export function SpellingGame() {
 
     if (e.key === "Backspace") {
       e.preventDefault();
-      setTyped((s) => s.slice(0, -1));
+      dispatchLayout({ type: "backspace" });
       return;
     }
 
     if (e.key.length === 1 && /[a-zA-Z]/.test(e.key)) {
       e.preventDefault();
-      if (typed.length >= len) return;
-      setTyped((s) => (s + e.key).toLowerCase());
+      const firstEmpty = layout.slotTileIds.findIndex((x) => x === null);
+      if (firstEmpty === -1) return;
+      dispatchLayout({
+        type: "placeKeyboard",
+        char: e.key.toLowerCase(),
+        charMap,
+      });
     }
   };
 
   const begin = () => {
+    dispatchLayout({
+      type: "reset",
+      tileIds: letterTiles.map((t) => t.id),
+      slotCount: letterTiles.length,
+    });
     setStarted(true);
     setPhase("typing");
-    setTyped("");
     setWrongMask(null);
     queueMicrotask(() => panelRef.current?.focus());
   };
 
   const sameWordAgain = () => {
-    setTyped("");
+    resetLayout();
     setWrongMask(null);
     setPhase("typing");
     panelRef.current?.focus();
+  };
+
+  const onDragStartBank = (e: React.DragEvent, tileId: string) => {
+    const payload: DragPayload = { source: "bank", tileId };
+    e.dataTransfer.setData(DND_MIME, JSON.stringify(payload));
+    e.dataTransfer.setData("text/plain", JSON.stringify(payload));
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const onDragStartSlot = (e: React.DragEvent, tileId: string, fromSlot: number) => {
+    const payload: DragPayload = { source: "slot", tileId, fromSlot };
+    e.dataTransfer.setData(DND_MIME, JSON.stringify(payload));
+    e.dataTransfer.setData("text/plain", JSON.stringify(payload));
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const onDropSlot = (e: React.DragEvent, slotIndex: number) => {
+    e.preventDefault();
+    setDropSlot(null);
+    const payload = readDragPayload(e);
+    if (!payload) return;
+    if (payload.source === "bank") {
+      dispatchLayout({
+        type: "dropBankToSlot",
+        tileId: payload.tileId,
+        slotIndex,
+      });
+      return;
+    }
+    if (payload.source === "slot") {
+      dispatchLayout({
+        type: "dropSlotToSlot",
+        fromIndex: payload.fromSlot,
+        toIndex: slotIndex,
+      });
+    }
+  };
+
+  const onDropBank = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDropSlot(null);
+    const payload = readDragPayload(e);
+    if (!payload || payload.source !== "slot") return;
+    dispatchLayout({ type: "dropSlotToBank", fromIndex: payload.fromSlot });
   };
 
   const rootClass = [
@@ -183,7 +378,12 @@ export function SpellingGame() {
     .join(" ");
 
   return (
-    <div className={`game-root ${rootClass}`} style={{ "--mc-transition": `${transitionMs}ms` } as React.CSSProperties}>
+    <div
+      className={`game-root ${rootClass}`}
+      style={
+        { "--mc-transition": `${transitionMs}ms` } as React.CSSProperties
+      }
+    >
       <div className="hero-strip" aria-hidden="true">
         <CastleSilhouette />
         <div className="hero-text">
@@ -196,8 +396,9 @@ export function SpellingGame() {
       {!started ? (
         <div className="start-panel">
           <p className="lede">
-            Use your <strong>keyboard</strong>. Type each letter. Press{" "}
-            <kbd>Backspace</kbd> to fix a letter.
+            Use the <strong>letter pool</strong> (drag letters into boxes) or{" "}
+            <strong>type</strong> on the keyboard. Letters always match the pool.
+            Press <kbd>Backspace</kbd> to remove the last letter from the boxes.
           </p>
           <button type="button" className="btn primary" onClick={begin}>
             Start playing
@@ -211,7 +412,7 @@ export function SpellingGame() {
           tabIndex={0}
           onKeyDown={onKeyDown}
           onPaste={(e) => e.preventDefault()}
-          aria-label="Spelling area. Type letters to spell the word."
+          aria-label="Spelling area. Drag letter tiles or type to spell the word."
         >
           <div className="word-meta">
             <p className="hint-label">Picture in your mind</p>
@@ -223,10 +424,14 @@ export function SpellingGame() {
 
           <div className="slots" role="group" aria-label="Letter boxes">
             {Array.from({ length: len }, (_, i) => {
-              const ch = typed[i] ?? "";
-              const wrong = wrongMask && wrongMask[i] && typed.length === len;
+              const id = layout.slotTileIds[i] ?? null;
+              const ch = id ? charMap[id] ?? "" : "";
+              const wrong = wrongMask && wrongMask[i] && allSlotsFilled;
               const highlight =
-                settings.highlightFirstSlot && typed.length === 0 && i === 0;
+                settings.highlightFirstSlot &&
+                layout.slotTileIds[0] === null &&
+                i === 0;
+              const dropHighlight = dropSlot === i;
               return (
                 <div
                   key={i}
@@ -235,19 +440,73 @@ export function SpellingGame() {
                     ch ? "filled" : "",
                     wrong ? "wrong" : "",
                     highlight ? "highlight-first" : "",
+                    dropHighlight ? "drop-target" : "",
                   ]
                     .filter(Boolean)
                     .join(" ")}
                   aria-label={
                     ch
                       ? `Letter ${i + 1}: ${ch}`
-                      : `Letter ${i + 1}, empty`
+                      : `Letter ${i + 1}, empty drop box`
                   }
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = "move";
+                    setDropSlot(i);
+                  }}
+                  onDragLeave={() => setDropSlot((s) => (s === i ? null : s))}
+                  onDrop={(e) => onDropSlot(e, i)}
                 >
-                  {ch ? ch.toUpperCase() : ""}
+                  {ch ? (
+                    <span
+                      className="slot-tile"
+                      draggable
+                      onDragStart={(e) =>
+                        id ? onDragStartSlot(e, id, i) : undefined
+                      }
+                    >
+                      {ch.toUpperCase()}
+                    </span>
+                  ) : null}
                 </div>
               );
             })}
+          </div>
+
+          <div className="letter-pool-wrap">
+            <p className="letter-pool-label" id="letter-pool-heading">
+              Letter pool (reference)
+            </p>
+            <div
+              className="letter-pool"
+              role="group"
+              aria-labelledby="letter-pool-heading"
+              onDragOver={(e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = "move";
+              }}
+              onDrop={onDropBank}
+            >
+              {layout.bankIds.length === 0 ? (
+                <p className="letter-pool-empty">All letters are in the boxes.</p>
+              ) : (
+                layout.bankIds.map((tileId) => (
+                  <button
+                    key={tileId}
+                    type="button"
+                    className="letter-tile"
+                    draggable
+                    onDragStart={(e) => onDragStartBank(e, tileId)}
+                    aria-label={`Letter ${charMap[tileId]?.toUpperCase() ?? ""} in the pool`}
+                  >
+                    {(charMap[tileId] ?? "").toUpperCase()}
+                  </button>
+                ))
+              )}
+            </div>
+            <p className="letter-pool-hint">
+              Drag a tile into a box, or type — both use the same letters.
+            </p>
           </div>
 
           <div className="tool-row" aria-label="Toodles tools">
@@ -295,7 +554,6 @@ export function SpellingGame() {
                 className="btn primary"
                 onClick={() => {
                   setPhase("typing");
-                  setTyped("");
                   setWrongMask(null);
                   setOrderIndex((i) => {
                     const next = i + 1;

@@ -287,6 +287,88 @@ kbd {
   background: color-mix(in srgb, var(--mc-accent-2) 18%, var(--mc-slot));
 }
 
+.slot.drop-target {
+  border-color: var(--mc-accent);
+  background: color-mix(in srgb, var(--mc-accent) 12%, var(--mc-slot));
+}
+
+.slot-tile {
+  cursor: grab;
+  user-select: none;
+  min-width: 1.6rem;
+  text-align: center;
+}
+
+.slot-tile:active {
+  cursor: grabbing;
+}
+
+.letter-pool-wrap {
+  margin: 0.25rem 0 0.5rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: 12px;
+  border: 1px solid var(--mc-line);
+  background: color-mix(in srgb, var(--mc-slot) 88%, var(--mc-card));
+}
+
+.letter-pool-label {
+  margin: 0 0 0.45rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--mc-muted);
+}
+
+.letter-pool {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  align-items: center;
+  min-height: 3.2rem;
+}
+
+.letter-pool-empty {
+  margin: 0;
+  font-size: 0.92rem;
+  color: var(--mc-muted);
+}
+
+.letter-tile {
+  font: inherit;
+  font-weight: 700;
+  font-size: 1.45rem;
+  width: 3rem;
+  height: 3.25rem;
+  border-radius: 10px;
+  border: 2px solid color-mix(in srgb, var(--mc-accent) 45%, var(--mc-line));
+  background: var(--mc-card);
+  color: var(--mc-ink);
+  cursor: grab;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  transition: border-color var(--mc-transition), transform var(--mc-transition);
+}
+
+.letter-tile:hover {
+  border-color: var(--mc-accent);
+}
+
+.letter-tile:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--mc-accent) 55%, transparent);
+  outline-offset: 2px;
+}
+
+.letter-tile:active {
+  cursor: grabbing;
+}
+
+.letter-pool-hint {
+  margin: 0.5rem 0 0;
+  font-size: 0.85rem;
+  color: var(--mc-muted);
+}
+
 .tool-row {
   display: flex;
   flex-wrap: wrap;
@@ -407,6 +489,12 @@ kbd {
   width: 3.6rem;
   height: 3.95rem;
   font-size: 1.95rem;
+}
+
+.ui-large .letter-tile {
+  width: 3.45rem;
+  height: 3.75rem;
+  font-size: 1.75rem;
 }
 
 .ui-large .btn {

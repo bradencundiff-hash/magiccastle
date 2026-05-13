@@ -1,6 +1,6 @@
 # Magic Castle — kindergarten spelling
 
-A small browser game for **desktop keyboard** practice: children type 3–4 letter words, get calm feedback, and earn on-screen “stickers” when a word is correct. Visuals are **original SVG shapes** (castle + friendly “tool pal”) so the repository stays easy to ship under an open license. See [ATTRIBUTION.md](ATTRIBUTION.md) before adding any Disney-owned artwork.
+A small browser game for early readers: an on-screen **letter pool** (shuffled letters for the word), **drag-and-drop** into boxes, or **typing** on the keyboard—both paths use the same letters. Children get calm feedback and earn on-screen “stickers” when a word is correct. Visuals are **original SVG shapes** (castle + friendly “tool pal”) so the repository stays easy to ship under an open license. See [ATTRIBUTION.md](ATTRIBUTION.md) before adding any Disney-owned artwork.
 
 ## Run locally
 
@@ -12,7 +12,7 @@ npm install
 npm run dev
 ```
 
-Open the URL Vite prints (usually `http://localhost:5173`). Click **Start playing**, then type letters; **Backspace** fixes a letter.
+Open the URL Vite prints (usually `http://localhost:5173`). Click **Start playing**, then **drag letters** from the pool into the boxes or **type** on the keyboard; **Backspace** removes the last letter from the boxes. Dragging a letter from a box onto the **letter pool** puts it back in the pool.
 
 ## Build
 
