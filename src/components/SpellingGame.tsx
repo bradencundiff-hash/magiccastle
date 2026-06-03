@@ -125,6 +125,16 @@ function speakWord(text: string) {
   window.speechSynthesis.speak(u);
 }
 
+function sayOhToodles(soundEnabled: boolean) {
+  if (!soundEnabled || !window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance("Oh, Toodles!");
+  u.rate = 0.78;
+  u.pitch = 1.7;
+  u.volume = 1;
+  window.speechSynthesis.speak(u);
+}
+
 type DragPayload =
   | { source: "bank"; tileId: string }
   | { source: "slot"; tileId: string; fromSlot: number };
@@ -242,6 +252,7 @@ export function SpellingGame() {
       if (!chimeGate.current) {
         chimeGate.current = true;
         playChime(settings.soundEnabled);
+        sayOhToodles(settings.soundEnabled);
       }
       return;
     }
