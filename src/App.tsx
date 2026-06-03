@@ -13,8 +13,8 @@ function SettingsBar() {
         : "allow";
 
   return (
-    <aside className="settings-bar" aria-label="Game settings">
-      <h2 className="settings-heading">Settings</h2>
+    <aside className="settings-bar" aria-label="Mousekedoer settings">
+      <h2 className="settings-heading">🛠️ Mousekedoer</h2>
       <div className="settings-grid">
         <label className="field">
           <span className="field-label">Motion</span>
@@ -48,7 +48,7 @@ function SettingsBar() {
             checked={settings.largeUi}
             onChange={(e) => setSettings({ largeUi: e.target.checked })}
           />
-          <span>Larger letters and buttons</span>
+          <span>Bigger letters and buttons</span>
         </label>
         <label className="toggle">
           <input
@@ -66,7 +66,7 @@ function SettingsBar() {
               setSettings({ highlightFirstSlot: e.target.checked })
             }
           />
-          <span>Toodles: highlight first letter spot</span>
+          <span>Toodles: glow the first letter spot</span>
         </label>
         <label className="toggle">
           <input
@@ -99,9 +99,9 @@ function AppShell() {
   return (
     <div className="app-shell">
       <header className="app-header">
+        <h1 className="app-title">Mickey's Playhouse Speller</h1>
         <p className="app-tagline">
-          Spelling for early readers: on-screen letter pool, drag-and-drop into
-          boxes, or type on the keyboard. Words are mostly 3–4 letters.
+          Drag letters, type, or tap — spell fun words with Toodles!
         </p>
       </header>
       <main className="app-main">
@@ -114,7 +114,7 @@ function AppShell() {
           <a href="https://github.com/bradencundiff-hash/magiccastle/blob/main/ATTRIBUTION.md">
             ATTRIBUTION.md
           </a>{" "}
-          in the repository before adding character artwork.
+          — all character art in this project is original SVG.
         </p>
       </footer>
     </div>
