@@ -54,10 +54,7 @@ function layoutReducer(state: LayoutState, action: LayoutAction): LayoutState {
     case "backspace": {
       let last = -1;
       for (let i = state.slotTileIds.length - 1; i >= 0; i--) {
-        if (state.slotTileIds[i] !== null) {
-          last = i;
-          break;
-        }
+        if (state.slotTileIds[i] !== null) { last = i; break; }
       }
       if (last === -1) return state;
       const tileId = state.slotTileIds[last]!;
@@ -218,7 +215,7 @@ export function SpellingGame() {
 
   useEffect(() => {
     if (phase !== "celebrate") return;
-    const wait = effectiveReduceMotion ? 900 : 1600;
+    const wait = effectiveReduceMotion ? 900 : 1800;
     const t = window.setTimeout(() => {
       if (!settings.repeatWordsMode) {
         setWrongMask(null);
@@ -269,17 +266,13 @@ export function SpellingGame() {
       setPhase("celebrate");
       setStickers((s) => (s.includes(current.id) ? s : [...s, current.id]));
       const el = announceRef.current;
-      if (el) {
-        el.textContent = `Nice spelling. You spelled ${current.word}.`;
-      }
+      if (el) el.textContent = `Nice spelling. You spelled ${current.word}.`;
     } else {
       const mask = target.split("").map((ch, i) => t[i] !== ch);
       setWrongMask(mask);
       const el = announceRef.current;
-      if (el) {
-        el.textContent =
-          "Not quite yet. You can drag letters to fix them, or use Backspace.";
-      }
+      if (el)
+        el.textContent = "Not quite yet. You can drag letters to fix them, or use Backspace.";
     }
   }, [typedString, allSlotsFilled, target, current.id, current.word, phase]);
 
@@ -297,11 +290,7 @@ export function SpellingGame() {
       e.preventDefault();
       const firstEmpty = layout.slotTileIds.findIndex((x) => x === null);
       if (firstEmpty === -1) return;
-      dispatchLayout({
-        type: "placeKeyboard",
-        char: e.key.toLowerCase(),
-        charMap,
-      });
+      dispatchLayout({ type: "placeKeyboard", char: e.key.toLowerCase(), charMap });
     }
   };
 
@@ -344,19 +333,11 @@ export function SpellingGame() {
     const payload = readDragPayload(e);
     if (!payload) return;
     if (payload.source === "bank") {
-      dispatchLayout({
-        type: "dropBankToSlot",
-        tileId: payload.tileId,
-        slotIndex,
-      });
+      dispatchLayout({ type: "dropBankToSlot", tileId: payload.tileId, slotIndex });
       return;
     }
     if (payload.source === "slot") {
-      dispatchLayout({
-        type: "dropSlotToSlot",
-        fromIndex: payload.fromSlot,
-        toIndex: slotIndex,
-      });
+      dispatchLayout({ type: "dropSlotToSlot", fromIndex: payload.fromSlot, toIndex: slotIndex });
     }
   };
 
@@ -380,28 +361,27 @@ export function SpellingGame() {
   return (
     <div
       className={`game-root ${rootClass}`}
-      style={
-        { "--mc-transition": `${transitionMs}ms` } as React.CSSProperties
-      }
+      style={{ "--mc-transition": `${transitionMs}ms` } as React.CSSProperties}
     >
+      {/* Hero strip */}
       <div className="hero-strip" aria-hidden="true">
-        <CastleSilhouette />
+        <PlayhouseIcon />
         <div className="hero-text">
-          <p className="hero-kicker">Magic Castle</p>
-          <h1 className="hero-title">Spelling practice</h1>
+          <p className="hero-kicker">Mickey's Playhouse</p>
+          <h2 className="hero-title">Spell It!</h2>
         </div>
-        <ToolPal />
+        <ToodlesMascot className="toodles-svg" />
       </div>
 
       {!started ? (
         <div className="start-panel">
           <p className="lede">
-            Use the <strong>letter pool</strong> (drag letters into boxes) or{" "}
-            <strong>type</strong> on the keyboard. Letters always match the pool.
-            Press <kbd>Backspace</kbd> to remove the last letter from the boxes.
+            Drag letters from the tile bank into the boxes, or just{" "}
+            <strong>type</strong> on the keyboard! Press <kbd>Backspace</kbd> to
+            take back the last letter. Toodles is here to help!
           </p>
           <button type="button" className="btn primary" onClick={begin}>
-            Start playing
+            Let's Play!
           </button>
         </div>
       ) : (
@@ -415,8 +395,8 @@ export function SpellingGame() {
           aria-label="Spelling area. Drag letter tiles or type to spell the word."
         >
           <div className="word-meta">
-            <p className="hint-label">Picture in your mind</p>
-            <p className="hint-text">{current.hint ?? "Spell the word."}</p>
+            <p className="hint-label">Toodles' hint</p>
+            <p className="hint-text">{current.hint ?? "Spell the word!"}</p>
             <p className="target-len">
               This word has <strong>{len}</strong> letters.
             </p>
@@ -444,11 +424,7 @@ export function SpellingGame() {
                   ]
                     .filter(Boolean)
                     .join(" ")}
-                  aria-label={
-                    ch
-                      ? `Letter ${i + 1}: ${ch}`
-                      : `Letter ${i + 1}, empty drop box`
-                  }
+                  aria-label={ch ? `Letter ${i + 1}: ${ch}` : `Letter ${i + 1}, empty drop box`}
                   onDragOver={(e) => {
                     e.preventDefault();
                     e.dataTransfer.dropEffect = "move";
@@ -461,9 +437,7 @@ export function SpellingGame() {
                     <span
                       className="slot-tile"
                       draggable
-                      onDragStart={(e) =>
-                        id ? onDragStartSlot(e, id, i) : undefined
-                      }
+                      onDragStart={(e) => (id ? onDragStartSlot(e, id, i) : undefined)}
                     >
                       {ch.toUpperCase()}
                     </span>
@@ -475,7 +449,7 @@ export function SpellingGame() {
 
           <div className="letter-pool-wrap">
             <p className="letter-pool-label" id="letter-pool-heading">
-              Letter pool (reference)
+              Grab a letter!
             </p>
             <div
               className="letter-pool"
@@ -488,7 +462,7 @@ export function SpellingGame() {
               onDrop={onDropBank}
             >
               {layout.bankIds.length === 0 ? (
-                <p className="letter-pool-empty">All letters are in the boxes.</p>
+                <p className="letter-pool-empty">All letters are in the boxes!</p>
               ) : (
                 layout.bankIds.map((tileId) => (
                   <button
@@ -505,24 +479,33 @@ export function SpellingGame() {
               )}
             </div>
             <p className="letter-pool-hint">
-              Drag a tile into a box, or type — both use the same letters.
+              Drag a tile into a box, or just type — both use the same letters.
             </p>
           </div>
 
-          <div className="tool-row" aria-label="Toodles tools">
+          {/* Toodles tool callout */}
+          <div className="toodles-callout" aria-label="Toodles tools">
+            <ToodlesMascot className="toodles-callout-icon" />
+            <div className="toodles-callout-text">
+              Oh, Toodles!
+              <span>Pick a tool to help you out</span>
+            </div>
+          </div>
+
+          <div className="tool-row">
             <button
               type="button"
               className="btn"
               onClick={() => speakWord(current.word)}
             >
-              Say the word
+              🔊 Say it!
             </button>
             <button type="button" className="btn" onClick={sameWordAgain}>
-              Clear letters
+              🔄 Try again
             </button>
             {settings.repeatWordsMode && phase !== "celebrate" ? (
               <button type="button" className="btn primary" onClick={goNextWord}>
-                Next word
+                Next word →
               </button>
             ) : null}
           </div>
@@ -545,7 +528,8 @@ export function SpellingGame() {
           aria-label="Celebration"
         >
           <div className="celebration-card">
-            <p className="celebration-title">You did it!</p>
+            <ToodlesMascot className="celebration-toodles" />
+            <p className="celebration-title">Hooray! You did it!</p>
             <p className="celebration-word">{current.word.toUpperCase()}</p>
             <StarBurst reduced={effectiveReduceMotion} />
             {settings.repeatWordsMode ? (
@@ -566,23 +550,23 @@ export function SpellingGame() {
                   queueMicrotask(() => panelRef.current?.focus());
                 }}
               >
-                Next word
+                Next word →
               </button>
             ) : null}
           </div>
         </div>
       ) : null}
 
-      <div className="stickers" aria-label="Stickers you earned this session">
-        <h2 className="stickers-title">Stickers</h2>
+      <div className="stickers" aria-label="Stars you earned this session">
+        <h3 className="stickers-title">⭐ Your Stars!</h3>
         <ul className="sticker-list">
           {stickers.map((id) => (
             <li key={id} className="sticker">
-              {words.find((w) => w.id === id)?.word ?? id}
+              ⭐ {words.find((w) => w.id === id)?.word ?? id}
             </li>
           ))}
           {stickers.length === 0 ? (
-            <li className="sticker empty">Spell a word to earn one</li>
+            <li className="sticker empty">Spell a word to earn a star!</li>
           ) : null}
         </ul>
       </div>
@@ -592,7 +576,7 @@ export function SpellingGame() {
 
 function StarBurst({ reduced }: { reduced: boolean }) {
   if (reduced) {
-    return <p className="celebration-quiet">Great job.</p>;
+    return <p className="celebration-quiet">Great job spelling!</p>;
   }
   const stars = [
     { cx: 18, cy: 14, delay: "0s" },
@@ -614,36 +598,66 @@ function StarBurst({ reduced }: { reduced: boolean }) {
   );
 }
 
-function CastleSilhouette() {
+/* Original SVG art — Toodles-inspired yellow gadget helper */
+function ToodlesMascot({ className }: { className: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 100 130"
+      role="img"
+      aria-label="Toodles"
+    >
+      {/* Ear bumps */}
+      <circle cx="30" cy="30" r="16" fill="#FFD700" stroke="#1A1209" strokeWidth="3" />
+      <circle cx="70" cy="30" r="16" fill="#FFD700" stroke="#1A1209" strokeWidth="3" />
+      {/* Body */}
+      <rect x="8" y="36" width="84" height="86" rx="26" fill="#FFD700" stroke="#1A1209" strokeWidth="3" />
+      {/* Eye whites */}
+      <circle cx="36" cy="72" r="15" fill="white" stroke="#1A1209" strokeWidth="2.5" />
+      <circle cx="64" cy="72" r="15" fill="white" stroke="#1A1209" strokeWidth="2.5" />
+      {/* Pupils */}
+      <circle cx="38" cy="73" r="8" fill="#1A1209" />
+      <circle cx="66" cy="73" r="8" fill="#1A1209" />
+      {/* Eye shine */}
+      <circle cx="41" cy="70" r="3" fill="white" />
+      <circle cx="69" cy="70" r="3" fill="white" />
+      {/* Blush */}
+      <circle cx="23" cy="85" r="8" fill="rgba(255,120,120,0.28)" />
+      <circle cx="77" cy="85" r="8" fill="rgba(255,120,120,0.28)" />
+      {/* Smile */}
+      <path
+        d="M34 93 Q50 108 66 93"
+        fill="none"
+        stroke="#1A1209"
+        strokeWidth="3.5"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+/* Playhouse-style house icon */
+function PlayhouseIcon() {
   return (
     <svg
       className="castle-svg"
       viewBox="0 0 120 100"
       role="img"
-      aria-label="Castle"
+      aria-label="Mickey's Playhouse"
     >
-      <path
-        fill="currentColor"
-        d="M10 95V45h15v10h10V35h15v20h10V25h20v30h10V40h15v55H10z"
-      />
-      <rect x="52" y="55" width="16" height="18" fill="var(--mc-sky)" />
-    </svg>
-  );
-}
-
-function ToolPal() {
-  return (
-    <svg
-      className="toolpal-svg"
-      viewBox="0 0 100 90"
-      role="img"
-      aria-label="Friendly tool helper"
-    >
-      <rect x="18" y="22" width="64" height="52" rx="12" fill="currentColor" />
-      <circle cx="38" cy="42" r="6" fill="var(--mc-sky)" />
-      <circle cx="62" cy="42" r="6" fill="var(--mc-sky)" />
-      <rect x="30" y="58" width="40" height="6" rx="2" fill="var(--mc-sky)" />
-      <rect x="44" y="8" width="12" height="18" rx="3" fill="currentColor" />
+      {/* House body */}
+      <rect x="18" y="52" width="84" height="48" rx="8" fill="currentColor" />
+      {/* Roof */}
+      <polygon points="8,56 60,8 112,56" fill="currentColor" />
+      {/* Door */}
+      <rect x="47" y="68" width="26" height="32" rx="13" fill="var(--mc-sky)" />
+      {/* Window left */}
+      <rect x="22" y="62" width="18" height="16" rx="4" fill="var(--mc-sky)" />
+      {/* Window right */}
+      <rect x="80" y="62" width="18" height="16" rx="4" fill="var(--mc-sky)" />
+      {/* Mickey ear bumps on roof peak */}
+      <circle cx="40" cy="22" r="11" fill="currentColor" />
+      <circle cx="80" cy="22" r="11" fill="currentColor" />
     </svg>
   );
 }

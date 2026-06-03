@@ -1,60 +1,95 @@
 :root {
   color-scheme: light;
-  --mc-bg: #f4f0ff;
-  --mc-ink: #1c1530;
-  --mc-muted: #5b5470;
-  --mc-card: #ffffff;
-  --mc-accent: #6b4dff;
-  --mc-accent-2: #ff8a3d;
-  --mc-line: #d7cfe8;
-  --mc-sky: #e8f4ff;
-  --mc-wrong: #c63d4a;
-  --mc-slot: #f0ecfb;
+
+  /* Mickey's Playhouse palette */
+  --mp-red:          #E3000F;
+  --mp-red-dark:     #A80000;
+  --mp-yellow:       #FFD700;
+  --mp-yellow-dark:  #E6B800;
+  --mp-yellow-pale:  #FFF9C4;
+  --mp-black:        #1A1209;
+  --mp-white:        #FFFEF5;
+  --mp-sky:          #1AC8F5;
+  --mp-sky-light:    #D0F2FF;
+  --mp-orange:       #FF6D00;
+  --mp-green:        #2E7D32;
+
+  /* Mapped to existing variable names — don't rename, inline style sets --mc-transition */
+  --mc-bg:         #FFF3C0;
+  --mc-ink:        var(--mp-black);
+  --mc-muted:      #5A4020;
+  --mc-card:       var(--mp-white);
+  --mc-accent:     var(--mp-red);
+  --mc-accent-2:   var(--mp-yellow);
+  --mc-line:       var(--mp-black);
+  --mc-sky:        var(--mp-sky-light);
+  --mc-wrong:      var(--mp-red);
+  --mc-slot:       var(--mp-yellow-pale);
   --mc-transition: 160ms;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, Cantarell,
-    "Noto Sans", sans-serif;
+
+  font-family: "Baloo 2", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   line-height: 1.45;
 }
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
+*, *::before, *::after { box-sizing: border-box; }
 
 body {
   margin: 0;
   min-height: 100vh;
-  background: var(--mc-bg);
+  background-color: var(--mc-bg);
+  background-image:
+    radial-gradient(circle, rgba(255, 215, 0, 0.55) 2.5px, transparent 2.5px),
+    radial-gradient(circle, rgba(227, 0, 15, 0.18) 2.5px,  transparent 2.5px);
+  background-size: 36px 36px;
+  background-position: 0 0, 18px 18px;
   color: var(--mc-ink);
 }
 
 a {
-  color: var(--mc-accent);
+  color: var(--mp-red);
+  font-weight: 700;
 }
 
-#root {
-  min-height: 100vh;
-}
+#root { min-height: 100vh; }
 
+/* ── App shell ── */
 .app-shell {
-  max-width: 960px;
+  max-width: 980px;
   margin: 0 auto;
-  padding: 1.25rem 1rem 2rem;
+  padding: 1rem 1rem 2.5rem;
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
 .app-header {
-  border-bottom: 1px solid var(--mc-line);
-  padding-bottom: 0.75rem;
+  background: var(--mp-red);
+  border: 3px solid var(--mp-black);
+  border-radius: 22px;
+  padding: 0.9rem 1.25rem 1rem;
+  box-shadow: 6px 6px 0 var(--mp-black);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.app-title {
+  margin: 0;
+  font-family: "Fredoka One", "Baloo 2", system-ui, sans-serif;
+  font-size: 1.85rem;
+  font-weight: 400;
+  color: var(--mp-yellow);
+  text-shadow: 3px 3px 0 var(--mp-black);
+  letter-spacing: 0.04em;
 }
 
 .app-tagline {
   margin: 0;
-  color: var(--mc-muted);
+  color: rgba(255, 255, 255, 0.92);
   font-size: 0.98rem;
+  font-weight: 600;
+  text-align: center;
 }
 
 .app-main {
@@ -64,7 +99,7 @@ a {
 
 @media (min-width: 860px) {
   .app-main {
-    grid-template-columns: 260px 1fr;
+    grid-template-columns: 290px 1fr;
     align-items: start;
   }
 }
@@ -72,20 +107,31 @@ a {
 .app-footer {
   font-size: 0.85rem;
   color: var(--mc-muted);
-  border-top: 1px solid var(--mc-line);
-  padding-top: 0.75rem;
+  background: var(--mp-white);
+  border: 2px solid var(--mp-black);
+  border-radius: 14px;
+  padding: 0.6rem 1rem;
+  font-weight: 600;
+  box-shadow: 3px 3px 0 var(--mp-black);
 }
 
+/* ── Settings bar (Mousekedoer panel) ── */
 .settings-bar {
-  background: var(--mc-card);
-  border: 1px solid var(--mc-line);
-  border-radius: 12px;
-  padding: 0.9rem 1rem;
+  background: var(--mp-yellow);
+  border: 3px solid var(--mp-black);
+  border-radius: 20px;
+  padding: 1rem;
+  box-shadow: 5px 5px 0 var(--mp-black);
 }
 
 .settings-heading {
-  margin: 0 0 0.6rem;
-  font-size: 1rem;
+  margin: 0 0 0.65rem;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--mp-black);
+  text-align: center;
+  font-family: "Fredoka One", "Baloo 2", sans-serif;
+  letter-spacing: 0.03em;
 }
 
 .settings-grid {
@@ -98,6 +144,7 @@ a {
   margin: 0.75rem 0 0;
   font-size: 0.85rem;
   color: var(--mc-muted);
+  font-weight: 600;
 }
 
 .toggle,
@@ -105,73 +152,129 @@ a {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-  font-size: 0.92rem;
+  font-size: 0.93rem;
+  font-weight: 700;
 }
 
 .field-label {
   color: var(--mc-muted);
   font-size: 0.82rem;
+  font-weight: 700;
 }
 
 .select {
   padding: 0.45rem 0.5rem;
-  border-radius: 8px;
-  border: 1px solid var(--mc-line);
-  background: var(--mc-card);
+  border-radius: 10px;
+  border: 2px solid var(--mp-black);
+  background: var(--mp-white);
   color: var(--mc-ink);
   font: inherit;
+  font-weight: 700;
 }
 
-.toggle input {
-  margin-right: 0.35rem;
-}
+.toggle input { margin-right: 0.35rem; }
 
+/* ── Game card ── */
 .game-root {
-  background: var(--mc-card);
-  border: 1px solid var(--mc-line);
-  border-radius: 14px;
-  padding: 1rem 1rem 1.25rem;
+  background: var(--mp-white);
+  border: 3px solid var(--mp-black);
+  border-radius: 24px;
+  padding: 1.25rem 1.25rem 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.1rem;
+  box-shadow: 7px 7px 0 var(--mp-black);
 }
 
+/* ── Hero strip ── */
 .hero-strip {
   display: grid;
   grid-template-columns: auto 1fr auto;
   gap: 0.75rem;
   align-items: center;
-  color: var(--mc-accent);
+  background: var(--mp-red);
+  border: 3px solid var(--mp-black);
+  border-radius: 18px;
+  padding: 0.8rem 1rem;
+  box-shadow: 4px 4px 0 var(--mp-black);
 }
 
-.hero-text {
-  text-align: center;
-}
+.hero-text { text-align: center; }
 
 .hero-kicker {
   margin: 0;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  font-size: 0.72rem;
-  color: var(--mc-muted);
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 700;
 }
 
 .hero-title {
   margin: 0.1rem 0 0;
-  font-size: 1.35rem;
+  font-family: "Fredoka One", "Baloo 2", sans-serif;
+  font-size: 1.55rem;
+  font-weight: 400;
+  color: var(--mp-yellow);
+  text-shadow: 2px 2px 0 var(--mp-black);
+  letter-spacing: 0.04em;
 }
 
-.castle-svg,
-.toolpal-svg {
+/* Playhouse house icon */
+.castle-svg {
   width: 72px;
   height: auto;
-  color: var(--mc-accent);
+  color: var(--mp-yellow);
+  filter: drop-shadow(2px 2px 0 var(--mp-black));
 }
 
+/* Toodles mascot sizing */
+.toodles-svg {
+  width: 72px;
+  height: auto;
+  filter: drop-shadow(2px 2px 0 var(--mp-black));
+}
+
+/* Small Toodles for inline callout */
+.toodles-callout-icon {
+  width: 44px;
+  height: auto;
+  flex-shrink: 0;
+  filter: drop-shadow(1px 1px 0 var(--mp-black));
+}
+
+/* ── Toodles callout banner ── */
+.toodles-callout {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  background: var(--mp-yellow);
+  border: 3px solid var(--mp-black);
+  border-radius: 18px;
+  padding: 0.55rem 0.9rem;
+  box-shadow: 4px 4px 0 var(--mp-black);
+  margin-bottom: 0.1rem;
+}
+
+.toodles-callout-text {
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: var(--mp-black);
+  line-height: 1.3;
+}
+
+.toodles-callout-text span {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--mc-muted);
+}
+
+/* ── Start panel ── */
 .start-panel {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 1rem;
   align-items: flex-start;
 }
 
@@ -179,117 +282,160 @@ a {
   margin: 0;
   max-width: 52ch;
   color: var(--mc-muted);
+  font-weight: 600;
+  font-size: 1.02rem;
 }
 
 kbd {
-  border: 1px solid var(--mc-line);
-  border-bottom-width: 2px;
-  border-radius: 6px;
-  padding: 0.1rem 0.35rem;
+  border: 2px solid var(--mp-black);
+  border-bottom-width: 4px;
+  border-radius: 8px;
+  padding: 0.1rem 0.4rem;
   font-size: 0.85em;
-  background: var(--mc-slot);
+  font-weight: 800;
+  background: var(--mp-yellow);
+  color: var(--mp-black);
 }
 
+/* ── Buttons ── */
 .btn {
-  border: 1px solid var(--mc-line);
-  background: var(--mc-slot);
-  color: var(--mc-ink);
-  border-radius: 10px;
-  padding: 0.55rem 0.85rem;
+  border: 3px solid var(--mp-black);
+  background: var(--mp-yellow);
+  color: var(--mp-black);
+  border-radius: 14px;
+  padding: 0.6rem 1.05rem;
   font: inherit;
+  font-weight: 800;
+  font-size: 1rem;
   cursor: pointer;
-  transition: background var(--mc-transition), border-color var(--mc-transition),
-    transform var(--mc-transition);
-}
-
-.btn:focus-visible {
-  outline: 3px solid color-mix(in srgb, var(--mc-accent) 55%, transparent);
-  outline-offset: 2px;
-}
-
-.btn.primary {
-  background: var(--mc-accent);
-  border-color: color-mix(in srgb, var(--mc-accent) 70%, #000);
-  color: #fff;
+  box-shadow: 4px 4px 0 var(--mp-black);
+  transition:
+    transform var(--mc-transition),
+    box-shadow var(--mc-transition);
+  letter-spacing: 0.01em;
 }
 
 .btn:hover {
-  border-color: color-mix(in srgb, var(--mc-accent) 35%, var(--mc-line));
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--mp-black);
 }
 
-.spell-panel {
-  outline: none;
+.btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--mp-black);
 }
+
+.btn:focus-visible {
+  outline: 3px solid var(--mp-sky);
+  outline-offset: 3px;
+}
+
+.btn.primary {
+  background: var(--mp-red);
+  border-color: var(--mp-black);
+  color: var(--mp-white);
+}
+
+/* ── Spell panel ── */
+.spell-panel { outline: none; }
 
 .spell-panel:focus-visible {
-  box-shadow: 0 0 0 3px
-    color-mix(in srgb, var(--mc-accent) 45%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--mp-sky) 55%, transparent);
   border-radius: 12px;
 }
 
-.word-meta {
-  margin-bottom: 0.75rem;
-}
+/* ── Word meta ── */
+.word-meta { margin-bottom: 0.65rem; }
 
 .hint-label {
   margin: 0;
-  font-size: 0.78rem;
-  letter-spacing: 0.06em;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--mc-muted);
+  font-weight: 800;
 }
 
 .hint-text {
   margin: 0.25rem 0 0.35rem;
-  font-size: 1.05rem;
+  font-size: 1.12rem;
+  font-weight: 700;
+  color: var(--mp-black);
 }
 
 .target-len {
   margin: 0;
   color: var(--mc-muted);
   font-size: 0.95rem;
+  font-weight: 600;
 }
 
+/* ── Slots ── */
 .slots {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.45rem;
+  gap: 0.55rem;
   margin: 0.5rem 0 0.75rem;
 }
 
 .slot {
-  width: 3.1rem;
-  height: 3.4rem;
-  border-radius: 10px;
-  border: 2px dashed var(--mc-line);
+  width: 3.2rem;
+  height: 3.5rem;
+  border-radius: 14px;
+  border: 3px dashed var(--mp-black);
   display: grid;
   place-items: center;
-  font-size: 1.6rem;
-  font-weight: 700;
+  font-size: 1.65rem;
+  font-weight: 800;
   letter-spacing: 0.02em;
   background: var(--mc-slot);
-  transition: border-color var(--mc-transition), background var(--mc-transition),
-    color var(--mc-transition);
+  transition:
+    border-color var(--mc-transition),
+    background var(--mc-transition),
+    color var(--mc-transition),
+    transform var(--mc-transition),
+    box-shadow var(--mc-transition);
 }
 
 .slot.filled {
   border-style: solid;
-  border-color: color-mix(in srgb, var(--mc-accent) 55%, var(--mc-line));
+  border-color: var(--mp-red);
+  background: #FFE4E4;
+  box-shadow: 3px 3px 0 var(--mp-black);
+  transform: scale(1.05);
 }
 
 .slot.wrong {
-  border-color: var(--mc-wrong);
-  color: var(--mc-wrong);
+  border-color: var(--mp-red);
+  color: var(--mp-red);
+  background: #FFD0D0;
+  animation: slot-shake 0.35s ease-out;
+}
+
+@keyframes slot-shake {
+  0%, 100% { transform: translateX(0) scale(1.05); }
+  25%       { transform: translateX(-5px) rotate(-3deg) scale(1.05); }
+  75%       { transform: translateX(5px) rotate(3deg) scale(1.05); }
 }
 
 .slot.highlight-first {
-  border-color: var(--mc-accent-2);
-  background: color-mix(in srgb, var(--mc-accent-2) 18%, var(--mc-slot));
+  border-style: solid;
+  border-color: var(--mp-yellow-dark);
+  background: var(--mp-yellow);
+  animation: pulse-glow 1s ease-in-out infinite alternate;
+}
+
+@keyframes pulse-glow {
+  from { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.7); }
+  to   { box-shadow: 0 0 0 10px rgba(255, 215, 0, 0); }
 }
 
 .slot.drop-target {
-  border-color: var(--mc-accent);
-  background: color-mix(in srgb, var(--mc-accent) 12%, var(--mc-slot));
+  border-style: solid;
+  border-color: var(--mp-sky);
+  background: var(--mp-sky-light);
+  transform: scale(1.08);
+  box-shadow: 3px 3px 0 var(--mp-black);
 }
 
 .slot-tile {
@@ -299,83 +445,100 @@ kbd {
   text-align: center;
 }
 
-.slot-tile:active {
-  cursor: grabbing;
-}
+.slot-tile:active { cursor: grabbing; }
 
+/* ── Letter pool ── */
 .letter-pool-wrap {
   margin: 0.25rem 0 0.5rem;
-  padding: 0.65rem 0.75rem;
-  border-radius: 12px;
-  border: 1px solid var(--mc-line);
-  background: color-mix(in srgb, var(--mc-slot) 88%, var(--mc-card));
+  padding: 0.75rem 0.9rem;
+  border-radius: 18px;
+  border: 3px solid var(--mp-black);
+  background: var(--mp-yellow-pale);
+  box-shadow: 4px 4px 0 var(--mp-black);
 }
 
 .letter-pool-label {
-  margin: 0 0 0.45rem;
-  font-size: 0.78rem;
-  letter-spacing: 0.05em;
+  margin: 0 0 0.5rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
   color: var(--mc-muted);
+  font-weight: 800;
 }
 
 .letter-pool {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.45rem;
+  gap: 0.5rem;
   align-items: center;
-  min-height: 3.2rem;
+  min-height: 3.5rem;
 }
 
 .letter-pool-empty {
   margin: 0;
-  font-size: 0.92rem;
+  font-size: 0.98rem;
   color: var(--mc-muted);
+  font-weight: 700;
 }
 
 .letter-tile {
   font: inherit;
-  font-weight: 700;
-  font-size: 1.45rem;
-  width: 3rem;
-  height: 3.25rem;
-  border-radius: 10px;
-  border: 2px solid color-mix(in srgb, var(--mc-accent) 45%, var(--mc-line));
-  background: var(--mc-card);
-  color: var(--mc-ink);
+  font-weight: 800;
+  font-size: 1.5rem;
+  width: 3.1rem;
+  height: 3.4rem;
+  border-radius: 12px;
+  border: 3px solid var(--mp-black);
+  background: var(--mp-yellow);
+  color: var(--mp-black);
   cursor: grab;
   display: grid;
   place-items: center;
   padding: 0;
-  transition: border-color var(--mc-transition), transform var(--mc-transition);
+  box-shadow: 3px 3px 0 var(--mp-black);
+  transition:
+    transform var(--mc-transition),
+    box-shadow var(--mc-transition);
 }
 
+/* Toy-block color cycle */
+.letter-tile:nth-child(4n + 1) { background: var(--mp-yellow); }
+.letter-tile:nth-child(4n + 2) { background: var(--mp-sky-light); }
+.letter-tile:nth-child(4n + 3) { background: #FFD0E4; }
+.letter-tile:nth-child(4n + 4) { background: #C8F5D0; }
+
 .letter-tile:hover {
-  border-color: var(--mc-accent);
+  transform: translate(-2px, -3px) rotate(-2deg);
+  box-shadow: 5px 5px 0 var(--mp-black);
 }
 
 .letter-tile:focus-visible {
-  outline: 3px solid color-mix(in srgb, var(--mc-accent) 55%, transparent);
+  outline: 3px solid var(--mp-sky);
   outline-offset: 2px;
 }
 
 .letter-tile:active {
   cursor: grabbing;
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0 var(--mp-black);
 }
 
 .letter-pool-hint {
-  margin: 0.5rem 0 0;
+  margin: 0.55rem 0 0;
   font-size: 0.85rem;
   color: var(--mc-muted);
+  font-weight: 600;
 }
 
+/* ── Tool row ── */
 .tool-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.45rem;
-  margin-top: 0.35rem;
+  gap: 0.5rem;
+  margin-top: 0.15rem;
 }
 
+/* ── Screen-reader live region ── */
 .sr-live {
   position: absolute;
   width: 1px;
@@ -388,78 +551,98 @@ kbd {
   border: 0;
 }
 
+/* ── Celebration overlay ── */
 .celebration {
   position: fixed;
   inset: 0;
   display: grid;
   place-items: center;
-  background: color-mix(in srgb, #120a24 42%, transparent);
+  background: rgba(26, 18, 9, 0.6);
   z-index: 20;
 }
 
 .celebration-card {
-  background: var(--mc-card);
-  color: var(--mc-ink);
-  border-radius: 16px;
-  padding: 1.25rem 1.5rem;
+  background: var(--mp-yellow);
+  color: var(--mp-black);
+  border-radius: 26px;
+  padding: 1.5rem 2rem 1.75rem;
   text-align: center;
-  min-width: min(92vw, 360px);
-  border: 1px solid var(--mc-line);
+  min-width: min(92vw, 380px);
+  border: 4px solid var(--mp-black);
+  box-shadow: 8px 8px 0 var(--mp-black);
+}
+
+.celebration-toodles {
+  width: 80px;
+  height: auto;
+  margin: 0 auto 0.5rem;
+  display: block;
+  animation: toodles-bounce 0.7s ease-out both;
+  filter: drop-shadow(3px 3px 0 var(--mp-black));
+}
+
+@keyframes toodles-bounce {
+  0%   { transform: scale(0.2) translateY(20px); opacity: 0; }
+  60%  { transform: scale(1.15) translateY(-8px); opacity: 1; }
+  80%  { transform: scale(0.95) translateY(2px); }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
 }
 
 .celebration-title {
   margin: 0;
-  font-size: 1.2rem;
+  font-family: "Fredoka One", "Baloo 2", sans-serif;
+  font-size: 1.65rem;
+  font-weight: 400;
+  color: var(--mp-red);
+  text-shadow: 2px 2px 0 var(--mp-black);
 }
 
 .celebration-word {
-  margin: 0.35rem 0 0.5rem;
-  font-size: 1.8rem;
-  letter-spacing: 0.12em;
-  color: var(--mc-accent);
+  margin: 0.3rem 0 0.5rem;
+  font-size: 2.1rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: var(--mp-black);
 }
 
 .celebration-quiet {
   margin: 0.35rem 0 0;
   color: var(--mc-muted);
+  font-weight: 700;
+  font-size: 1.1rem;
 }
 
 .star-burst {
-  width: min(92vw, 220px);
+  width: min(92vw, 240px);
   height: auto;
   margin: 0.35rem auto 0.75rem;
   display: block;
 }
 
-.star {
-  fill: var(--mc-accent-2);
-  transform-origin: center;
-  animation: pop 0.65s ease-out both;
-}
+.star { transform-origin: center; animation: pop 0.65s ease-out both; }
+.star:nth-child(1) { fill: var(--mp-red); }
+.star:nth-child(2) { fill: var(--mp-orange); animation-delay: 0.08s; }
+.star:nth-child(3) { fill: var(--mp-sky); animation-delay: 0.16s; }
+.star:nth-child(4) { fill: var(--mp-green); animation-delay: 0.24s; }
 
 @keyframes pop {
-  from {
-    transform: scale(0.4) rotate(-8deg);
-    opacity: 0;
-  }
-  55% {
-    transform: scale(1.05) rotate(4deg);
-    opacity: 1;
-  }
-  to {
-    transform: scale(1) rotate(0deg);
-    opacity: 1;
-  }
+  from { transform: scale(0.3) rotate(-15deg); opacity: 0; }
+  60%  { transform: scale(1.14) rotate(6deg); opacity: 1; }
+  to   { transform: scale(1) rotate(0deg); opacity: 1; }
 }
 
+/* ── Stickers ── */
 .stickers {
-  border-top: 1px solid var(--mc-line);
-  padding-top: 0.75rem;
+  border-top: 3px solid var(--mp-black);
+  padding-top: 0.9rem;
 }
 
 .stickers-title {
-  margin: 0 0 0.45rem;
-  font-size: 1rem;
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--mp-black);
+  font-family: "Fredoka One", "Baloo 2", sans-serif;
 }
 
 .sticker-list {
@@ -468,70 +651,66 @@ kbd {
   padding: 0;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35rem;
+  gap: 0.4rem;
 }
 
 .sticker {
   border-radius: 999px;
-  padding: 0.35rem 0.65rem;
-  border: 1px solid var(--mc-line);
-  background: var(--mc-slot);
-  font-weight: 600;
+  padding: 0.35rem 0.75rem;
+  border: 2.5px solid var(--mp-black);
+  background: var(--mp-red);
+  color: var(--mp-white);
+  font-weight: 800;
+  font-size: 0.95rem;
   letter-spacing: 0.04em;
+  box-shadow: 2px 2px 0 var(--mp-black);
 }
+
+.sticker:nth-child(3n + 2) { background: var(--mp-sky); color: var(--mp-black); }
+.sticker:nth-child(3n + 3) { background: var(--mp-orange); }
 
 .sticker.empty {
+  background: var(--mp-yellow-pale);
   color: var(--mc-muted);
-  font-weight: 500;
+  border-style: dashed;
+  box-shadow: none;
+  font-weight: 700;
 }
 
-.ui-large .slot {
-  width: 3.6rem;
-  height: 3.95rem;
-  font-size: 1.95rem;
-}
+/* ── Large UI ── */
+.ui-large .slot            { width: 3.7rem; height: 4.1rem; font-size: 2rem; }
+.ui-large .letter-tile     { width: 3.55rem; height: 3.9rem; font-size: 1.85rem; }
+.ui-large .btn             { padding: 0.7rem 1.15rem; font-size: 1.1rem; }
 
-.ui-large .letter-tile {
-  width: 3.45rem;
-  height: 3.75rem;
-  font-size: 1.75rem;
-}
-
-.ui-large .btn {
-  padding: 0.65rem 1rem;
-  font-size: 1.05rem;
-}
-
+/* ── High contrast ── */
 .ui-high-contrast {
-  --mc-bg: #0b0b10;
-  --mc-ink: #f7f4ff;
-  --mc-muted: #d5d0ea;
-  --mc-card: #12121c;
-  --mc-accent: #b9a6ff;
-  --mc-accent-2: #ffb36b;
-  --mc-line: #2c2c3a;
-  --mc-sky: #0f1a2a;
-  --mc-wrong: #ff8d95;
-  --mc-slot: #1a1a26;
+  --mc-bg:         #1A1209;
+  --mc-ink:        #FFFEF5;
+  --mc-muted:      #E0C882;
+  --mc-card:       #2A1F0A;
+  --mc-accent:     #FF4040;
+  --mc-accent-2:   #FFD700;
+  --mc-line:       #FFD700;
+  --mc-sky:        #1AC8F5;
+  --mc-wrong:      #FF4040;
+  --mc-slot:       #2C2208;
 }
 
 .ui-high-contrast .game-root,
-.ui-high-contrast .settings-bar {
-  border-width: 2px;
-}
+.ui-high-contrast .settings-bar { border-width: 3px; }
 
-.ui-slow {
-  --mc-transition: 520ms;
-}
+/* ── Slow transitions ── */
+.ui-slow { --mc-transition: 520ms; }
 
-.ui-reduce-motion .star {
-  animation: none;
-  opacity: 1;
-}
+/* ── Reduced motion ── */
+.ui-reduce-motion .star                  { animation: none; opacity: 1; }
+.ui-reduce-motion .slot.highlight-first  { animation: none; }
+.ui-reduce-motion .slot.wrong            { animation: none; }
+.ui-reduce-motion .celebration-toodles   { animation: none; opacity: 1; }
 
 @media (prefers-reduced-motion: reduce) {
-  .ui-reduce-motion .star,
-  .star {
+  .star,
+  .ui-reduce-motion .star {
     animation-duration: 0.01ms;
     animation-iteration-count: 1;
   }
